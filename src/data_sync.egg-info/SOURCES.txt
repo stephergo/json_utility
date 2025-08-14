@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/data_sync/__init__.py
+src/data_sync/core.py
+src/data_sync/exceptions.py
+src/data_sync.egg-info/PKG-INFO
+src/data_sync.egg-info/SOURCES.txt
+src/data_sync.egg-info/dependency_links.txt
+src/data_sync.egg-info/requires.txt
+src/data_sync.egg-info/top_level.txt
+tests/test_core.py

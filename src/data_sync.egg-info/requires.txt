@@ -1,0 +1,8 @@
+pandas
+openpyxl
+sqlalchemy
+duckdb-engine
+duckdb
+
+[dev]
+pytest

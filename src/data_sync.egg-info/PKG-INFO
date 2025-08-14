@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: data-sync
+Version: 0.1.0
+Summary: A library to synchronize data between JSON, Excel, and a database.
+Project-URL: Homepage, https://github.com/pypa/sampleproject
+Project-URL: Bug Tracker, https://github.com/pypa/sampleproject/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: pandas
+Requires-Dist: openpyxl
+Requires-Dist: sqlalchemy
+Requires-Dist: duckdb-engine
+Requires-Dist: duckdb
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+
+# Data-Sync Library
+
+A simple Python library to facilitate data synchronization between JSON files, Excel spreadsheets, and a local database (SQLite or DuckDB).
+
+This library is designed to be simple, testable, portable, and maintainable.
+
+## Core Features
+
+- Load data from JSON or Excel.
+- Save data to JSON or Excel.
+- Synchronize data with a DuckDB/SQLite database.
+- Provide a simple interface for data manipulation via Pandas DataFrames.
+
+## Quickstart
+
+```python
+# See examples/simple_usage.py
+```

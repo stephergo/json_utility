@@ -3,6 +3,7 @@ openpyxl
 sqlalchemy
 duckdb-engine
 duckdb
+pandera
 
 [dev]
 pytest

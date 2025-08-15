@@ -3,6 +3,7 @@ pyproject.toml
 src/data_sync/__init__.py
 src/data_sync/core.py
 src/data_sync/exceptions.py
+src/data_sync/schemas.py
 src/data_sync.egg-info/PKG-INFO
 src/data_sync.egg-info/SOURCES.txt
 src/data_sync.egg-info/dependency_links.txt

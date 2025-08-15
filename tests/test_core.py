@@ -8,6 +8,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data_sync import DataSync, DataSyncError
+from src.data_sync.schemas import PersonSchema
+
 
 @pytest.fixture
 def db_path(tmp_path: Path) -> Path:
@@ -82,3 +84,61 @@ def test_sync_to_db_and_load_from_db(db_path: Path, sample_df: pd.DataFrame):
 
     # Assertions
     pd.testing.assert_frame_equal(ds_loader.get_df(), sample_df)
+
+
+def test_column_mapping_excel(tmp_path: Path):
+    """
+    Teste que le mappage de colonnes fonctionne correctement lors du chargement depuis Excel.
+    """
+    # Arrange
+    file_path = tmp_path / "test_mapping.xlsx"
+    mapping = {'Prénom': 'givenName', 'Nom': 'familyName'}
+    data = pd.DataFrame([{'Prénom': 'John', 'Nom': 'Doe'}])
+    data.to_excel(file_path, index=False)
+
+    ds = DataSync(db_path=str(tmp_path / "test.db"))
+
+    # Act
+    ds.load_from_excel(file_path, column_mapping=mapping)
+
+    # Assert
+    assert 'givenName' in ds.get_df().columns
+    assert 'familyName' in ds.get_df().columns
+    assert 'Prénom' not in ds.get_df().columns
+
+def test_validation_success():
+    """
+    Teste que la méthode de validation réussit avec des données conformes.
+    """
+    # Arrange
+    compliant_data = pd.DataFrame({
+        'givenName': ['Alice'],
+        'familyName': ['Smith'],
+        'email': ['alice@example.com'],
+        'birthDate': [pd.to_datetime('1995-02-10')]
+    })
+    ds = DataSync(db_path="in_memory.db")
+    ds.df = compliant_data
+
+    # Act & Assert
+    try:
+        ds.validate(PersonSchema)
+    except DataSyncError:
+        pytest.fail("La validation aurait dû réussir, mais elle a échoué.")
+
+def test_validation_failure():
+    """
+    Teste que la méthode de validation échoue avec des données non conformes.
+    """
+    # Arrange
+    non_compliant_data = pd.DataFrame({
+        'givenName': ['Bob'],
+        'familyName': ['Jones'],
+        'email': ['not-an-email'], # Email invalide
+    })
+    ds = DataSync(db_path="in_memory.db")
+    ds.df = non_compliant_data
+
+    # Act & Assert
+    with pytest.raises(DataSyncError, match="La validation des données a échoué"):
+        ds.validate(PersonSchema)

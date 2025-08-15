@@ -18,7 +18,8 @@ dependencies = [
     "openpyxl",
     "sqlalchemy",
     "duckdb-engine", # DuckDB driver for SQLAlchemy
-    "duckdb"
+    "duckdb",
+    "pandera"
 ]
 
 [project.optional-dependencies]

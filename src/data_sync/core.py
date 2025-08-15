@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import pandera as pa
 from pathlib import Path
 from sqlalchemy import create_engine, text
 from .exceptions import DataSyncError
@@ -28,29 +29,35 @@ class DataSync:
         """S'assure que le répertoire parent du fichier de base de données existe."""
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def load_from_excel(self, file_path: str, sheet_name: str | int = 0):
+    def load_from_excel(self, file_path: str, sheet_name: str | int = 0, column_mapping: dict | None = None):
         """
         Charge les données d'un fichier Excel dans le DataFrame interne.
 
         :param file_path: Chemin vers le fichier Excel.
         :param sheet_name: Nom ou index de la feuille à lire.
+        :param column_mapping: Dictionnaire pour renommer les colonnes. Ex: {'Ancien Nom': 'nouveau_nom'}
         """
         try:
             self.df = pd.read_excel(file_path, sheet_name=sheet_name)
+            if column_mapping:
+                self.df.rename(columns=column_mapping, inplace=True)
         except FileNotFoundError:
             raise DataSyncError(f"Fichier Excel non trouvé à {file_path}")
         except Exception as e:
             raise DataSyncError(f"Erreur lors de la lecture du fichier Excel : {e}")
 
-    def load_from_json(self, file_path: str, orient: str = 'records'):
+    def load_from_json(self, file_path: str, orient: str = 'records', column_mapping: dict | None = None):
         """
         Charge les données d'un fichier JSON dans le DataFrame interne.
 
         :param file_path: Chemin vers le fichier JSON.
         :param orient: Orientation du format JSON.
+        :param column_mapping: Dictionnaire pour renommer les colonnes. Ex: {'Ancien Nom': 'nouveau_nom'}
         """
         try:
             self.df = pd.read_json(file_path, orient=orient)
+            if column_mapping:
+                self.df.rename(columns=column_mapping, inplace=True)
         except FileNotFoundError:
             raise DataSyncError(f"Fichier JSON non trouvé à {file_path}")
         except Exception as e:
@@ -132,3 +139,17 @@ class DataSync:
         :return: Le DataFrame pandas actuel.
         """
         return self.df
+
+    def validate(self, schema: pa.DataFrameSchema):
+        """
+        Valide le DataFrame interne par rapport à un schéma pandera.
+
+        :param schema: Le schéma pandera à utiliser pour la validation.
+        :raises DataSyncError: Si la validation échoue.
+        """
+        try:
+            schema.validate(self.df, lazy=True)
+            # Le paramètre lazy=True permet de rapporter toutes les erreurs de validation en une fois.
+        except pa.errors.SchemaErrors as e:
+            # Renvoyer l'erreur de pandera encapsulée dans une DataSyncError
+            raise DataSyncError(f"La validation des données a échoué :\n{e}")
